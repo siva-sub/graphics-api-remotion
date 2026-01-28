@@ -1,7 +1,7 @@
 // Semantic Query Engine
 
-import { TAXONOMY, SOURCE_CAPABILITIES, Category, Style, ContentType, SourceName } from './taxonomy';
-import { GraphicResult, GraphicSource } from './types';
+import { TAXONOMY, SOURCE_CAPABILITIES, Category, Style, ContentType, SourceName } from './taxonomy.js';
+import { GraphicResult, GraphicSource } from './types.js';
 
 export interface QueryOptions {
     concept?: string;

@@ -1,7 +1,7 @@
 // Doodle Ipsum Provider
 // URL-based doodle API - no auth required
 
-import { DoodleIpsumOptions, DoodleStyle, GraphicResult } from '../types';
+import { DoodleIpsumOptions, DoodleStyle, GraphicResult } from '../types.js';
 
 const BASE_URL = 'https://doodleipsum.com';
 

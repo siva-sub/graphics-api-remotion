@@ -1,7 +1,7 @@
 // Lucide Icons Provider
 // unpkg CDN access - no auth required
 
-import { LucideOptions, GraphicResult } from '../types';
+import { LucideOptions, GraphicResult } from '../types.js';
 
 const UNPKG_URL = 'https://unpkg.com/lucide-static@latest/icons';
 

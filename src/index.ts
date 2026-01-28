@@ -2,8 +2,8 @@
 // Unified API for fetching illustrations, icons, and doodles
 
 // Types
-export * from './types';
-export * from './taxonomy';
+export * from './types.js';
+export * from './taxonomy.js';
 
 // Context-based selection
 export {
@@ -12,21 +12,21 @@ export {
     getThemesForContext,
     CONTEXT_MAPPINGS,
     type StoryContext
-} from './context';
+} from './context.js';
 
 // Query Engine
-export { queryGraphics, parseQuery, type QueryOptions, type ParsedQuery } from './query';
+export { queryGraphics, parseQuery, type QueryOptions, type ParsedQuery } from './query.js';
 
 // Providers (5 sources - all working with no auth)
-export { doodleIpsum } from './providers/doodle-ipsum';
-export { storyset } from './providers/storyset';
-export { phosphor } from './providers/phosphor';
-export { lucide } from './providers/lucide';
-export { iconoodle } from './providers/iconoodle';
+export { doodleIpsum } from './providers/doodle-ipsum.js';
+export { storyset } from './providers/storyset.js';
+export { phosphor } from './providers/phosphor.js';
+export { lucide } from './providers/lucide.js';
+export { iconoodle } from './providers/iconoodle.js';
 
 // Remotion Components (only export types, components need React)
-export type { GraphicSequenceProps } from './components/GraphicSequence';
-export type { AnimatedIconProps } from './components/AnimatedIcon';
+export type { GraphicSequenceProps } from './components/GraphicSequence.js';
+export type { AnimatedIconProps } from './components/AnimatedIcon.js';
 
 // Remotion Prefetch Utilities (for server-side rendering)
 export {
@@ -37,19 +37,19 @@ export {
     getPrefetchedUrl,
     renderSvgContent,
     remotionUtils
-} from './remotion/prefetch';
+} from './remotion/prefetch.js';
 
 // Convenience imports
-import { doodleIpsum } from './providers/doodle-ipsum';
-import { storyset } from './providers/storyset';
-import { phosphor } from './providers/phosphor';
-import { lucide } from './providers/lucide';
-import { iconoodle } from './providers/iconoodle';
-import { queryGraphics } from './query';
-import type { QueryOptions } from './query';
-import { GraphicResult } from './types';
-import { SourceName } from './taxonomy';
-import { getIconsForContext, getThemesForContext } from './context';
+import { doodleIpsum } from './providers/doodle-ipsum.js';
+import { storyset } from './providers/storyset.js';
+import { phosphor } from './providers/phosphor.js';
+import { lucide } from './providers/lucide.js';
+import { iconoodle } from './providers/iconoodle.js';
+import { queryGraphics } from './query.js';
+import type { QueryOptions } from './query.js';
+import { GraphicResult } from './types.js';
+import { SourceName } from './taxonomy.js';
+import { getIconsForContext, getThemesForContext } from './context.js';
 
 /**
  * All providers with search capability

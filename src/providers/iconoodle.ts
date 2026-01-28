@@ -2,7 +2,7 @@
 // Hand-drawn SVG doodles, illustrations, and icon packs from GitHub
 // https://github.com/NK2552003/Iconoodle
 
-import { IconoodleOptions, GraphicResult } from '../types';
+import { IconoodleOptions, GraphicResult } from '../types.js';
 
 const BASE_URL = 'https://raw.githubusercontent.com/NK2552003/Iconoodle/main/lib';
 

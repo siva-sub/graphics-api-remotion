@@ -2,7 +2,7 @@
 // Icon with scale, rotation, and color animations
 
 import type { CSSProperties } from 'react';
-import type { GraphicResult } from '../types';
+import type { GraphicResult } from '../types.js';
 
 export interface AnimatedIconProps {
     graphic: GraphicResult;

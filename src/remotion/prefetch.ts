@@ -2,7 +2,7 @@
 // Pre-fetch graphics before rendering to avoid external URL issues
 // See: https://www.remotion.dev/docs/prefetch
 
-import type { GraphicResult } from '../types';
+import type { GraphicResult } from '../types.js';
 
 /**
  * Prefetch graphics for Remotion rendering

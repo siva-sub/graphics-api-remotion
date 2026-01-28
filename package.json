@@ -1,22 +1,36 @@
 {
     "name": "graphics-api-remotion",
-    "version": "1.0.2",
-    "description": "Context-aware graphics API for Remotion - fetch illustrations, icons, and doodles from 6 free sources. No API keys required.",
+    "version": "1.0.3",
+    "description": "Context-aware graphics API for Remotion - fetch illustrations, icons, and doodles from 5 free sources. No API keys required.",
+    "type": "module",
     "main": "dist/index.js",
+    "module": "dist/index.js",
     "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        },
+        "./prefetch": {
+            "import": "./dist/remotion/prefetch.js",
+            "types": "./dist/remotion/prefetch.d.ts"
+        }
+    },
     "files": [
         "dist",
         "README.md"
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/siva-sub/graphics-api-remotion.git"
+        "url": "git+https://github.com/siva-sub/graphics-api-remotion.git"
     },
     "author": "sickn33",
     "scripts": {
         "build": "tsc",
         "prepublishOnly": "npm run build",
-        "test": "tsx test/test-providers.ts && tsx test/test-context.ts"
+        "test": "node --import tsx test/test-providers.ts && node --import tsx test/test-context.ts",
+        "test:endpoints": "node --import tsx test/test-endpoints.ts",
+        "test:remotion": "node --import tsx test/test-remotion-integration.ts"
     },
     "keywords": [
         "remotion",
@@ -31,7 +45,6 @@
         "storyset",
         "iconoodle",
         "doodle-ipsum",
-        "ira-design",
         "ai-agent",
         "context-aware",
         "semantic-search",
@@ -42,7 +55,8 @@
         "free-api",
         "claude-code",
         "remotion-video",
-        "programmatic-video"
+        "programmatic-video",
+        "prefetch"
     ],
     "license": "MIT",
     "devDependencies": {

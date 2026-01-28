@@ -1,7 +1,7 @@
 // Phosphor Icons Provider
 // GitHub raw access - no auth required
 
-import { PhosphorOptions, PhosphorWeight, GraphicResult } from '../types';
+import { PhosphorOptions, PhosphorWeight, GraphicResult } from '../types.js';
 
 // Use GitHub raw which works reliably
 const GITHUB_RAW = 'https://raw.githubusercontent.com/phosphor-icons/core/main/assets';

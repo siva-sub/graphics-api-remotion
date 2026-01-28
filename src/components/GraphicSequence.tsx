@@ -2,7 +2,7 @@
 // Wrapper for graphics with enter/exit animations
 
 import type { CSSProperties, FC } from 'react';
-import type { GraphicResult } from '../types';
+import type { GraphicResult } from '../types.js';
 
 export interface GraphicSequenceProps {
     graphic: GraphicResult;

@@ -1,7 +1,7 @@
 // Storyset Provider
 // Uses Freepik's internal API - no auth required
 
-import { StorysetOptions, StorysetCategory, StorysetStyle, GraphicResult } from '../types';
+import { StorysetOptions, StorysetCategory, StorysetStyle, GraphicResult } from '../types.js';
 
 const API_URL = 'https://stories.freepiklabs.com/api/vectors';
 
