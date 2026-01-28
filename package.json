@@ -1,6 +1,6 @@
 {
     "name": "graphics-api-remotion",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "description": "Context-aware graphics API for Remotion - fetch illustrations, icons, and doodles from 5 free sources. No API keys required.",
     "type": "module",
     "main": "dist/index.js",

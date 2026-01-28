@@ -1,5 +1,6 @@
 // Storyset Provider
 // Uses Freepik's internal API - no auth required
+// API returns: src (SVG), preview (PNG), url (page), illustration.name
 
 import { StorysetOptions, StorysetCategory, StorysetStyle, GraphicResult } from '../types.js';
 
@@ -11,18 +12,27 @@ const CATEGORIES: StorysetCategory[] = [
 
 const STYLES: StorysetStyle[] = ['rafiki', 'bro', 'amico', 'pana', 'cuate'];
 
-interface StorysetAPIResponse {
-    data: Array<{
-        id: string;
-        title: string;
+interface StorysetAPIItem {
+    id: number;
+    src: string;           // SVG URL - this is the main asset
+    preview: string;       // PNG preview
+    preview_no_bg: string; // PNG without background
+    url: string;           // Storyset page URL
+    slug: string;          // e.g. "image-folder/rafiki"
+    style: string;
+    illustration: {
         slug: string;
-        thumbnail: string;
-        svg_url?: string;
-        category: string;
-    }>;
+        name: string;
+    };
+    tags?: Array<{ name: string; slug: string }>;
+}
+
+interface StorysetAPIResponse {
+    data: StorysetAPIItem[];
     meta?: {
         total: number;
-        page: number;
+        current_page: number;
+        per_page: number;
     };
 }
 
@@ -31,17 +41,20 @@ interface StorysetAPIResponse {
  */
 export async function fetch(options: StorysetOptions = {}): Promise<GraphicResult[]> {
     const {
-        category = 'business',
+        category,
         style = 'rafiki',
         search: searchTerm
     } = options;
 
     const params = new URLSearchParams({
-        category,
         style,
         page: '1',
-        per_page: '12'
+        per_page: '30'
     });
+
+    if (category) {
+        params.set('category', category);
+    }
 
     if (searchTerm) {
         params.set('search', searchTerm);
@@ -51,40 +64,36 @@ export async function fetch(options: StorysetOptions = {}): Promise<GraphicResul
         const response = await globalThis.fetch(`${API_URL}?${params}`);
 
         if (!response.ok) {
-            // Fallback to direct Storyset URLs
-            return getFallback(category, style);
+            console.error('Storyset API error:', response.status);
+            return [];
         }
 
-        const data: StorysetAPIResponse = await response.json();
+        const result: StorysetAPIResponse = await response.json();
 
-        return data.data.map(item => ({
-            url: item.thumbnail || item.svg_url || '',
+        if (!result.data || !Array.isArray(result.data)) {
+            console.error('Storyset API returned invalid data');
+            return [];
+        }
+
+        return result.data.map(item => ({
+            // Use src (SVG) as primary, fallback to preview (PNG)
+            url: item.src || item.preview || item.preview_no_bg || '',
             source: 'storyset' as const,
             metadata: {
-                id: item.id,
-                title: item.title,
+                id: String(item.id),
+                title: item.illustration?.name || '',
                 slug: item.slug,
-                category: item.category,
-                style
+                style: item.style,
+                pageUrl: item.url,
+                svgUrl: item.src,
+                previewUrl: item.preview,
+                tags: item.tags?.map(t => t.name) || []
             }
-        }));
-    } catch {
-        return getFallback(category, style);
+        })).filter(item => item.url); // Only return items with valid URLs
+    } catch (err) {
+        console.error('Storyset fetch error:', err);
+        return [];
     }
-}
-
-/**
- * Fallback URLs when API fails
- */
-function getFallback(category: StorysetCategory, style: StorysetStyle): GraphicResult[] {
-    // Direct Storyset page URLs
-    const baseUrl = `https://storyset.com/${category}`;
-
-    return [{
-        url: baseUrl,
-        source: 'storyset',
-        metadata: { category, style, fallback: true }
-    }];
 }
 
 /**
@@ -95,51 +104,91 @@ export function getEmbedUrl(slug: string, style: StorysetStyle = 'rafiki', color
 }
 
 /**
+ * Get direct SVG URL by illustration slug
+ */
+export function getSvgUrl(illustrationSlug: string, style: StorysetStyle = 'rafiki'): string {
+    // This returns the page URL - actual SVG requires API call
+    return `https://storyset.com/illustration/${illustrationSlug}/${style}`;
+}
+
+/**
  * Search Storyset illustrations
  */
 export async function search(terms: string[]): Promise<GraphicResult[]> {
-    // Map terms to categories
+    // Map common terms to Storyset categories
     const categoryMap: Record<string, StorysetCategory> = {
         'code': 'coding',
         'coding': 'coding',
         'programming': 'coding',
         'developer': 'coding',
+        'software': 'coding',
         'tech': 'technology',
         'computer': 'technology',
+        'server': 'technology',
+        'api': 'technology',
         'office': 'business',
         'work': 'business',
         'team': 'business',
         'meeting': 'business',
+        'finance': 'business',
+        'payment': 'business',
+        'money': 'business',
+        'shopping': 'business',
+        'ecommerce': 'business',
+        'cart': 'business',
         'learn': 'education',
         'study': 'education',
+        'school': 'education',
         'doctor': 'health',
         'medical': 'health',
+        'fitness': 'health',
         'person': 'people',
-        'human': 'people'
+        'human': 'people',
+        'user': 'people',
+        'success': 'business',
+        'celebrate': 'people',
+        'achievement': 'business'
     };
 
-    let matchedCategory: StorysetCategory = 'business';
+    let matchedCategory: StorysetCategory | undefined;
+
+    // Find matching category from terms
     for (const term of terms) {
-        if (categoryMap[term]) {
-            matchedCategory = categoryMap[term];
+        const lowerTerm = term.toLowerCase();
+        if (categoryMap[lowerTerm]) {
+            matchedCategory = categoryMap[lowerTerm];
             break;
         }
-        if (CATEGORIES.includes(term as StorysetCategory)) {
-            matchedCategory = term as StorysetCategory;
+        if (CATEGORIES.includes(lowerTerm as StorysetCategory)) {
+            matchedCategory = lowerTerm as StorysetCategory;
             break;
         }
     }
 
-    return fetch({
+    // Fetch with search terms
+    const results = await fetch({
         category: matchedCategory,
         search: terms.join(' ')
     });
+
+    return results;
+}
+
+/**
+ * Get a specific illustration by searching
+ */
+export async function get(searchTerms: string | string[]): Promise<GraphicResult | null> {
+    const terms = Array.isArray(searchTerms) ? searchTerms : [searchTerms];
+    const results = await search(terms);
+    return results.length > 0 ? results[0] : null;
 }
 
 export const storyset = {
     fetch,
     search,
+    get,
     getEmbedUrl,
+    getSvgUrl,
     categories: CATEGORIES,
     styles: STYLES
 };
