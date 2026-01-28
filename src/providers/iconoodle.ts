@@ -94,6 +94,7 @@ export async function search(
     const searchTerms = terms.map(t => t.toLowerCase());
 
     const matches = items.filter(item =>
+        item && item.id && item.category && item.style &&
         searchTerms.some(term =>
             item.id.toLowerCase().includes(term) ||
             item.category.toLowerCase().includes(term) ||
