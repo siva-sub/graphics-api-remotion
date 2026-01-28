@@ -10,6 +10,7 @@ export {
     parseContext,
     getIconsForContext,
     getThemesForContext,
+    getIconoodlePackForContext,
     CONTEXT_MAPPINGS,
     type StoryContext
 } from './context.js';

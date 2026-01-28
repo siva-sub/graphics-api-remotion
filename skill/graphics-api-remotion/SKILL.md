@@ -3,93 +3,101 @@ name: graphics-api-remotion
 description: Fetch illustrations, icons, and doodles from 5 free sources for Remotion videos. No API keys required. Includes prefetch utilities for server-side rendering.
 ---
 
-# Graphics API for Remotion
+# Graphics API for Remotion (Agent Self-Service)
 
-> Context-aware graphics selection from 5 free sources. **Zero API keys.**
+> Context-aware graphics from 5 free sources. **Zero API keys.**
 
-## When to Use
-
-- Adding graphics to Remotion video scenes
-- Finding icons/illustrations based on scene context
-- Prefetching SVG assets for server-side rendering
-
-## Quick Start
+## Quick Start for Agents
 
 ```typescript
-import { query, prefetchGraphics } from 'graphics-api-remotion';
-
-// In calculateMetadata (Remotion pattern)
-const graphics = await query(props.storyline);
-const prefetched = await prefetchGraphics(graphics);
-return { props: { ...props, graphics: prefetched } };
-```
-
-## Context-Based Selection
-
-```typescript
-import { query, getGraphicsForContext } from 'graphics-api-remotion';
+import { query, prefetchGraphics, getGraphicsForContext } from 'graphics-api-remotion';
 
 // Describe scene → get matching graphics
-const graphics = await query("user sends payment");
-// → credit-card, wallet, check icons
-
-// Get categorized
-const scene = await getGraphicsForContext("team coding startup");
-// → { icons: 3, illustrations: 30, doodles: 10 }
+const graphics = await query("developer coding laptop startup");
+const prefetched = await prefetchGraphics(graphics);
 ```
 
-## Context Mappings
+## Context-Aware Selection
 
-| Context | Returns |
-|---------|---------|
-| `"send payment"` | credit-card, wallet, arrow-right |
-| `"user login"` | log-in, user, key, lock |
-| `"success"` | trophy, check, star |
-| `"developer coding"` | code, terminal + tech illustrations |
-
-## Prefetch (Required for Remotion)
+The `query()` function understands natural language:
 
 ```typescript
-import { prefetchGraphics, prefetchGraphic, getPrefetchedUrl } from 'graphics-api-remotion';
-
-// Batch prefetch
-const prefetched = await prefetchGraphics(graphics);
-
-// Single prefetch
-const icon = await prefetchGraphic(graphic);
-
-// Get data URI from graphic with embedded SVG
-const url = getPrefetchedUrl(graphic);
+// These all work with context matching:
+await query("user making payment");      // → credit-card, wallet, bank icons
+await query("team celebrating success"); // → trophy, check, star, users icons  
+await query("error warning security");   // → alert-triangle, shield, x icons
+await query("developer coding laptop");  // → code, terminal + tech illustrations
 ```
 
-## Direct Provider Access
+## Direct Provider Access (For Unlisted Categories)
+
+**For categories NOT in the context mappings, access providers directly:**
 
 ```typescript
 import { phosphor, lucide, iconoodle, storyset, doodleIpsum } from 'graphics-api-remotion';
 
-// Phosphor (6 weights)
-const icon = await phosphor.get({ name: 'check', weight: 'bold' });
-const icons = await phosphor.search(['arrow', 'user']);
+// Icons - search by ANY term
+const custom = await phosphor.search(['your-term', 'another-term']);
+const lucideIcons = await lucide.search(['any-keyword']);
 
-// Iconoodle (19 packs)
-const doodles = await iconoodle.search(['arrow'], { pack: 'brutalist-doodles' });
+// Iconoodle - 19 packs with 2000+ doodles
+const animals = await iconoodle.search(['cat'], { pack: 'doodles-cute-animals' });
+const food = await iconoodle.search(['pizza'], { pack: 'doodles-fast-food-doodle-art' });
+const tech = await iconoodle.search(['network'], { pack: 'doodles-internet-network-doodles' });
+const ai = await iconoodle.search(['robot'], { pack: 'doodles-ai-icon-doodles' });
 
-// Storyset illustrations
-const illustrations = await storyset.search(['technology']);
+// List all available packs
+console.log(iconoodle.packs); // 19 themed packs
 
-// Doodle Ipsum (4 styles)
-const doodle = doodleIpsum.getRandom({ style: 'flat' });
+// Get random from any pack
+const random = await iconoodle.getRandom({ pack: 'christmas-illustration', count: 5 });
+
+// Storyset - search ANY illustration topic
+const illustrations = await storyset.search(['your-topic']);
 ```
 
-## Providers (5 sources, no auth)
+## Available Iconoodle Packs
 
-| Provider | Content | Count |
-|----------|---------|-------|
-| Phosphor | Icons (6 weights) | 1,200+ |
-| Lucide | Icons | 1,500+ |
-| Iconoodle | Doodles (19 packs) | 2,000+ |
-| Storyset | Illustrations | Many |
-| Doodle Ipsum | Doodles (4 styles) | Unlimited |
+| Pack | Content |
+|------|---------|
+| `doodles` | Main (2000+ items) |
+| `doodles-cute-animals` | Animals |
+| `doodles-fast-food-doodle-art` | Food |
+| `doodles-hand-drawn-lifestyle-doodle` | Lifestyle |
+| `doodles-internet-network-doodles` | Tech/Network |
+| `doodles-ai-icon-doodles` | AI/Robot |
+| `christmas-illustration` | Holiday |
+| `doodles-educational-doodles` | Education |
+| `cars-icons` | Vehicles |
+| `candy-icons` | Colorful |
+| `3d-like-shape-doodles` | 3D shapes |
+| `brutalist-doodles` | Bold/Minimal |
+
+## Context Keyword Reference
+
+### Actions
+`send`, `receive`, `pay`, `buy`, `login`, `logout`, `signup`, `share`, `like`, `save`, `delete`, `edit`, `upload`, `download`, `search`, `code`, `build`, `deploy`, `launch`, `test`, `approve`, `reject`, `celebrate`
+
+### Subjects  
+`user`, `team`, `payment`, `message`, `notification`, `file`, `database`, `api`, `success`, `error`, `warning`, `chart`, `security`, `code`, `developer`
+
+### Themes (Storyset)
+`business`, `technology`, `finance`, `education`, `health`, `startup`, `ecommerce`, `security`, `analytics`, `social`
+
+## Remotion Integration
+
+```typescript
+import { Composition } from 'remotion';
+import { query, prefetchGraphics } from 'graphics-api-remotion';
+
+<Composition
+  calculateMetadata={async ({ props }) => {
+    const graphics = await query(props.storyline);
+    const prefetched = await prefetchGraphics(graphics);
+    return { props: { ...props, graphics: prefetched } };
+  }}
+/>
+```
 
 ## Links
 
