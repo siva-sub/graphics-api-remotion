@@ -1,23 +1,18 @@
 # graphics-api-remotion
 
-> 🎨 Context-aware graphics API for Remotion videos. Fetch illustrations, icons, and doodles from 5 free sources with **zero API keys**.
+> **Context-aware graphics API for Remotion** - Fetch illustrations, icons, and doodles from 5 free sources. Zero API keys required.
 
-[![npm version](https://img.shields.io/npm/v/graphics-api-remotion)](https://www.npmjs.com/package/graphics-api-remotion)
-[![npm downloads](https://img.shields.io/npm/dm/graphics-api-remotion)](https://www.npmjs.com/package/graphics-api-remotion)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
-[![Remotion](https://img.shields.io/badge/Remotion-4.0+-purple.svg)](https://remotion.dev/)
+[![npm version](https://img.shields.io/npm/v/graphics-api-remotion.svg)](https://www.npmjs.com/package/graphics-api-remotion)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ## ✨ Features
 
-- 🎨 **5 Graphics Sources** - Illustrations, icons, and hand-drawn doodles
-- 🔑 **No API Keys** - All sources work without authentication  
-- 🧠 **Context-Aware** - AI-friendly semantic query matches graphics to storyline
-- 🎬 **Remotion Ready** - Pre-fetch utilities for server-side rendering
-- 🤖 **Agent-Friendly** - Claude Code skill included
-- 📦 **TypeScript** - Full type safety
+- 🎯 **Context-aware** - Describe your scene, get matching graphics
+- 🔑 **No API keys** - All 5 providers work out of the box
+- 🎬 **Remotion-ready** - Prefetch utilities for SSR
+- 📦 **ESM native** - Full TypeScript support
 
-## 📦 Install
+## 📦 Installation
 
 ```bash
 npm install graphics-api-remotion
@@ -25,153 +20,105 @@ npm install graphics-api-remotion
 
 ## 🚀 Quick Start
 
-### Context-Based Selection
+### Context-Aware Query
 
 ```typescript
-import { query, getGraphicsForContext, prefetchGraphics } from 'graphics-api-remotion';
+import { query, getGraphicsForContext } from 'graphics-api-remotion';
 
-// Describe your scene - get matching graphics
+// Describe your scene → get matching graphics
 const graphics = await query("user sends payment confirmation");
-// Returns: credit-card, wallet, bank, send icons
+// Returns: credit-card, wallet, check icons + relevant illustrations
 
-// Prefetch for Remotion (converts to data URIs)
-const prefetched = await prefetchGraphics(graphics);
+// Get categorized by type
+const scene = await getGraphicsForContext("developer coding startup");
+// → { icons: [...], illustrations: [...], doodles: [...] }
 ```
 
----
+### Remotion Integration
 
-## 🎬 Remotion Integration
+**Important**: Remotion can't use external URLs during render. Use `prefetchGraphics()`:
 
-**Important**: Remotion can't use external URLs during server-side render. Use `prefetchGraphics()` to convert to data URIs.
-
-### calculateMetadata Pattern
-
-```tsx
+```typescript
 import { Composition } from 'remotion';
 import { query, prefetchGraphics } from 'graphics-api-remotion';
 
-export const RemotionRoot: React.FC = () => {
-  return (
-    <Composition
-      id="StoryScene"
-      component={StoryScene}
-      durationInFrames={150}
-      fps={30}
-      defaultProps={{ storyline: 'team celebrates product launch' }}
-      calculateMetadata={async ({ props }) => {
-        // 1. Query graphics based on storyline
-        const graphics = await query(props.storyline);
-        
-        // 2. Prefetch to convert URLs to data URIs
-        const prefetched = await prefetchGraphics(graphics);
-        
-        return { props: { ...props, graphics: prefetched } };
-      }}
-    />
-  );
-};
+export const MyVideo = () => (
+  <Composition
+    id="Scene"
+    component={SceneComponent}
+    calculateMetadata={async ({ props }) => {
+      // 1. Query graphics by context
+      const graphics = await query(props.storyline);
+      // 2. Prefetch to data URIs
+      const prefetched = await prefetchGraphics(graphics);
+      return { props: { ...props, graphics: prefetched } };
+    }}
+  />
+);
 ```
 
-### Using Prefetched Graphics
-
-```tsx
-import { Img } from 'remotion';
-import { GraphicResult, getPrefetchedUrl } from 'graphics-api-remotion';
-
-const StoryScene: React.FC<{ graphics: GraphicResult[] }> = ({ graphics }) => {
-  return (
-    <div>
-      {graphics.map((g, i) => (
-        g.svg ? (
-          // Render SVG directly
-          <div key={i} dangerouslySetInnerHTML={{ __html: g.svg }} />
-        ) : (
-          // Use prefetched data URI
-          <Img key={i} src={getPrefetchedUrl(g)} />
-        )
-      ))}
-    </div>
-  );
-};
-```
-
-### Prefetch Functions
-
-| Function | Description |
-|----------|-------------|
-| `prefetchGraphics(graphics)` | Convert array of graphics to data URIs |
-| `prefetchGraphic(graphic)` | Convert single graphic to data URI |
-| `svgToDataUri(svg)` | Convert SVG string to data URI |
-| `getPrefetchedUrl(graphic)` | Get prefetched URL from graphic |
-
----
-
-## 📖 Usage
-
-### Semantic Query
+### Direct Provider Access
 
 ```typescript
-import { query, getIconsForContext } from 'graphics-api-remotion';
+import { phosphor, lucide, iconoodle, storyset, doodleIpsum } from 'graphics-api-remotion';
 
-// Natural language query
-const results = await query("developer working on laptop");
+// Phosphor icon with weight
+const icon = await phosphor.get({ name: 'check', weight: 'bold' });
+const icons = await phosphor.search(['arrow', 'user', 'check']);
 
-// Just get icon names
-const iconNames = getIconsForContext("payment success");
-// Returns: ['credit-card', 'wallet', 'check', 'trophy', 'star']
+// Lucide icons
+const settings = await lucide.get({ name: 'settings' });
+
+// Iconoodle (19+ packs available)
+const doodles = await iconoodle.search(['arrow'], { pack: 'brutalist-doodles', limit: 5 });
+
+// Storyset illustrations
+const illustrations = await storyset.search(['technology']);
+
+// Doodle Ipsum
+const doodle = doodleIpsum.getRandom({ style: 'flat', width: 200, height: 200 });
 ```
 
-### Context Mappings
+## 📚 Context Mappings
 
 | Context | Returns |
 |---------|---------|
 | `"send payment"` | credit-card, wallet, arrow-right |
 | `"user login"` | log-in, user, key, lock |
-| `"success"` | trophy, check, star |
-| `"error warning"` | alert-triangle, x-circle |
-| `"team meeting"` | users + business illustrations |
+| `"success"` | trophy, check, star, celebration |
+| `"developer coding"` | code, terminal + tech illustrations |
+| `"team meeting"` | users, building + business illustrations |
 
-### Direct Provider Access
+## 🔧 Prefetch Functions
 
-```typescript
-import { phosphor, lucide, iconoodle, storyset } from 'graphics-api-remotion';
+| Function | Purpose |
+|----------|---------|
+| `prefetchGraphics(graphics[])` | Convert array to data URIs |
+| `prefetchGraphic(graphic)` | Convert single to data URI |
+| `svgToDataUri(svg)` | Convert SVG string to data URI |
+| `getPrefetchedUrl(graphic)` | Get prefetched URL (uses svg if available) |
 
-// Phosphor icon with weight
-const icon = await phosphor.get({ name: 'check', weight: 'bold' });
+## 🎨 Providers
 
-// Lucide icon
-const lucideIcon = await lucide.get({ name: 'settings' });
+| Provider | Type | Count | Features |
+|----------|------|-------|----------|
+| **Phosphor** | Icons | 1,200+ | 6 weights (thin→fill) |
+| **Lucide** | Icons | 1,500+ | Consistent style |
+| **Iconoodle** | Doodles | 2,000+ | 19 themed packs |
+| **Storyset** | Illustrations | Many | Animated SVG |
+| **Doodle Ipsum** | Doodles | Unlimited | 4 styles |
 
-// Iconoodle doodle (19+ packs available)
-const doodles = await iconoodle.search(['arrow'], { pack: 'brutalist-doodles' });
-
-// Storyset illustration
-const illustrations = await storyset.search(['technology']);
-```
-
----
-
-## 📚 Providers
-
-| Provider | Content | Count |
-|----------|---------|-------|
-| [Doodle Ipsum](https://doodleipsum.com) | Doodles | Unlimited |
-| [Storyset](https://storyset.com) | Illustrations | Many |
-| [Phosphor](https://phosphoricons.com) | Icons | 1,200+ (6 weights) |
-| [Lucide](https://lucide.dev) | Icons | 1,500+ |
-| [Iconoodle](https://github.com/NK2552003/Iconoodle) | Doodles/Icons | 2,000+ (19 packs) |
-
-## 🤖 Claude Code Skill
+## 🧪 Testing
 
 ```bash
-git clone https://github.com/siva-sub/graphics-api-remotion.git
-cp -r graphics-api-remotion/skill/graphics-api-remotion ~/.gemini/antigravity/skills/
+npm run test:endpoints    # Provider connectivity
+npm run test:remotion     # Remotion integration
 ```
-
-## 🏷️ Keywords
-
-`remotion` `graphics` `illustrations` `icons` `doodles` `phosphor-icons` `lucide` `storyset` `ai-agent` `context-aware` `video` `animation` `svg` `no-auth` `free-api` `claude-code` `semantic-search` `prefetch`
 
 ## 📄 License
 
 MIT © [siva-sub](https://github.com/siva-sub)
+
+---
+
+**Links:** [npm](https://www.npmjs.com/package/graphics-api-remotion) • [GitHub](https://github.com/siva-sub/graphics-api-remotion)

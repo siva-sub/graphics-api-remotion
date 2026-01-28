@@ -5,98 +5,93 @@ description: Fetch illustrations, icons, and doodles from 5 free sources for Rem
 
 # Graphics API for Remotion
 
-> Context-aware graphics selection from 5 free sources. **Zero API keys required.**
+> Context-aware graphics selection from 5 free sources. **Zero API keys.**
 
 ## When to Use
 
-- Adding graphics to Remotion video storylines
+- Adding graphics to Remotion video scenes
 - Finding icons/illustrations based on scene context
-- Prefetching assets for server-side rendering
+- Prefetching SVG assets for server-side rendering
 
-## Installation
-
-```bash
-npm install graphics-api-remotion
-```
-
-## Remotion Integration (Prefetch Required)
-
-**Important**: Remotion can't use external URLs during render. Use `prefetchGraphics()`:
+## Quick Start
 
 ```typescript
-import { Composition } from 'remotion';
 import { query, prefetchGraphics } from 'graphics-api-remotion';
 
-<Composition
-  id="StoryScene"
-  calculateMetadata={async ({ props }) => {
-    // 1. Query graphics
-    const graphics = await query(props.storyline);
-    // 2. Prefetch to data URIs
-    const prefetched = await prefetchGraphics(graphics);
-    return { props: { ...props, graphics: prefetched } };
-  }}
-/>
+// In calculateMetadata (Remotion pattern)
+const graphics = await query(props.storyline);
+const prefetched = await prefetchGraphics(graphics);
+return { props: { ...props, graphics: prefetched } };
 ```
 
 ## Context-Based Selection
 
 ```typescript
-import { query, getIconsForContext, getGraphicsForContext } from 'graphics-api-remotion';
+import { query, getGraphicsForContext } from 'graphics-api-remotion';
 
-// Describe your scene → get matching graphics
+// Describe scene → get matching graphics
 const graphics = await query("user sends payment");
-// Returns: credit-card, wallet, bank icons
+// → credit-card, wallet, check icons
 
-// Get categorized graphics
+// Get categorized
 const scene = await getGraphicsForContext("team coding startup");
-// Returns: { icons: 3, illustrations: 30, doodles: 10 }
+// → { icons: 3, illustrations: 30, doodles: 10 }
 ```
 
 ## Context Mappings
 
 | Context | Returns |
 |---------|---------|
-| "send payment" | credit-card, wallet, arrow-right |
-| "user login" | log-in, user, key, lock |
-| "success" | trophy, check, star |
-| "developer coding" | code, terminal + technology illustrations |
+| `"send payment"` | credit-card, wallet, arrow-right |
+| `"user login"` | log-in, user, key, lock |
+| `"success"` | trophy, check, star |
+| `"developer coding"` | code, terminal + tech illustrations |
 
-## Prefetch Functions
+## Prefetch (Required for Remotion)
 
-| Function | Purpose |
-|----------|---------|
-| `prefetchGraphics(graphics)` | Convert array to data URIs |
-| `prefetchGraphic(graphic)` | Convert single to data URI |
-| `svgToDataUri(svg)` | Convert SVG string to data URI |
-| `getPrefetchedUrl(graphic)` | Get prefetched URL from graphic |
+```typescript
+import { prefetchGraphics, prefetchGraphic, getPrefetchedUrl } from 'graphics-api-remotion';
+
+// Batch prefetch
+const prefetched = await prefetchGraphics(graphics);
+
+// Single prefetch
+const icon = await prefetchGraphic(graphic);
+
+// Get data URI from graphic with embedded SVG
+const url = getPrefetchedUrl(graphic);
+```
 
 ## Direct Provider Access
 
 ```typescript
 import { phosphor, lucide, iconoodle, storyset, doodleIpsum } from 'graphics-api-remotion';
 
-// Phosphor icon with weight
+// Phosphor (6 weights)
 const icon = await phosphor.get({ name: 'check', weight: 'bold' });
+const icons = await phosphor.search(['arrow', 'user']);
 
-// Iconoodle (19+ packs available)
+// Iconoodle (19 packs)
 const doodles = await iconoodle.search(['arrow'], { pack: 'brutalist-doodles' });
 
-// Storyset illustration
+// Storyset illustrations
 const illustrations = await storyset.search(['technology']);
+
+// Doodle Ipsum (4 styles)
+const doodle = doodleIpsum.getRandom({ style: 'flat' });
 ```
 
 ## Providers (5 sources, no auth)
 
 | Provider | Content | Count |
 |----------|---------|-------|
-| Doodle Ipsum | Doodles | Unlimited |
-| Storyset | Illustrations | Many |
 | Phosphor | Icons (6 weights) | 1,200+ |
 | Lucide | Icons | 1,500+ |
-| Iconoodle | Doodles/Icons | 2,000+ (19 packs) |
+| Iconoodle | Doodles (19 packs) | 2,000+ |
+| Storyset | Illustrations | Many |
+| Doodle Ipsum | Doodles (4 styles) | Unlimited |
 
-## Source Code
+## Links
 
-GitHub: https://github.com/siva-sub/graphics-api-remotion
-npm: https://www.npmjs.com/package/graphics-api-remotion
+- npm: https://www.npmjs.com/package/graphics-api-remotion
+- GitHub: https://github.com/siva-sub/graphics-api-remotion
