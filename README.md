@@ -111,7 +111,7 @@ This API is available as a Claude Code skill:
 
 ```bash
 # Clone to your skills directory
-git clone https://github.com/sickn33/graphics-api-remotion.git
+git clone https://github.com/siva-sub/graphics-api-remotion.git
 cp -r graphics-api-remotion/skill/graphics-api-remotion ~/.gemini/antigravity/skills/
 ```
 
