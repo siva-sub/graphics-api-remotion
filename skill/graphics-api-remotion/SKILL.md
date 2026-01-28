@@ -7,97 +7,81 @@ description: Fetch illustrations, icons, and doodles from 5 free sources for Rem
 
 > Context-aware graphics from 5 free sources. **Zero API keys.**
 
-## Quick Start for Agents
+## Quick Start
 
 ```typescript
-import { query, prefetchGraphics, getGraphicsForContext } from 'graphics-api-remotion';
+import { query, prefetchGraphics } from 'graphics-api-remotion';
 
-// Describe scene → get matching graphics
-const graphics = await query("developer coding laptop startup");
+// In Remotion calculateMetadata
+const graphics = await query(props.storyline);
 const prefetched = await prefetchGraphics(graphics);
+return { props: { ...props, graphics: prefetched } };
 ```
 
-## Context-Aware Selection
-
-The `query()` function understands natural language:
+## Context-Aware Examples
 
 ```typescript
-// These all work with context matching:
-await query("user making payment");      // → credit-card, wallet, bank icons
-await query("team celebrating success"); // → trophy, check, star, users icons  
-await query("error warning security");   // → alert-triangle, shield, x icons
+await query("user making payment");      // → credit-card, wallet icons
+await query("team celebrating success"); // → trophy, star, users icons  
 await query("developer coding laptop");  // → code, terminal + tech illustrations
+await query("error warning security");   // → alert-triangle, shield icons
 ```
 
-## Direct Provider Access (For Unlisted Categories)
+## Providers (5 sources, no auth)
 
-**For categories NOT in the context mappings, access providers directly:**
+| Provider | Content |
+|----------|---------|
+| **Phosphor** | 1,200+ icons (6 weights) |
+| **Lucide** | 1,500+ icons |
+| **Iconoodle** | 2,000+ icons, doodles, illustrations (19 packs) |
+| **Storyset** | 2,000+ professional illustrations |
+| **Doodle Ipsum** | Unlimited doodles (4 styles) |
+
+## Direct Provider Access
+
+**For any category, access providers directly:**
 
 ```typescript
 import { phosphor, lucide, iconoodle, storyset, doodleIpsum } from 'graphics-api-remotion';
 
-// Icons - search by ANY term
-const custom = await phosphor.search(['your-term', 'another-term']);
-const lucideIcons = await lucide.search(['any-keyword']);
+// Icons
+await phosphor.search(['check', 'arrow']);
+await lucide.search(['settings', 'home']);
 
-// Iconoodle - 19 packs with 2000+ doodles
-const animals = await iconoodle.search(['cat'], { pack: 'doodles-cute-animals' });
-const food = await iconoodle.search(['pizza'], { pack: 'doodles-fast-food-doodle-art' });
-const tech = await iconoodle.search(['network'], { pack: 'doodles-internet-network-doodles' });
-const ai = await iconoodle.search(['robot'], { pack: 'doodles-ai-icon-doodles' });
+// Illustrations (Storyset + Iconoodle)
+await storyset.search(['technology', 'business']);
+await iconoodle.search(['payment'], { pack: 'doodles' });
 
-// List all available packs
-console.log(iconoodle.packs); // 19 themed packs
-
-// Get random from any pack
-const random = await iconoodle.getRandom({ pack: 'christmas-illustration', count: 5 });
-
-// Storyset - search ANY illustration topic
-const illustrations = await storyset.search(['your-topic']);
+// Doodles (Iconoodle + Doodle Ipsum)
+await iconoodle.search(['cat'], { pack: 'doodles-cute-animals' });
+await iconoodle.search(['robot'], { pack: 'doodles-ai-icon-doodles' });
+doodleIpsum.getRandom({ style: 'flat' });
 ```
 
-## Available Iconoodle Packs
-
-| Pack | Content |
-|------|---------|
-| `doodles` | Main (2000+ items) |
-| `doodles-cute-animals` | Animals |
-| `doodles-fast-food-doodle-art` | Food |
-| `doodles-hand-drawn-lifestyle-doodle` | Lifestyle |
-| `doodles-internet-network-doodles` | Tech/Network |
-| `doodles-ai-icon-doodles` | AI/Robot |
-| `christmas-illustration` | Holiday |
-| `doodles-educational-doodles` | Education |
-| `cars-icons` | Vehicles |
-| `candy-icons` | Colorful |
-| `3d-like-shape-doodles` | 3D shapes |
-| `brutalist-doodles` | Bold/Minimal |
-
-## Context Keyword Reference
-
-### Actions
-`send`, `receive`, `pay`, `buy`, `login`, `logout`, `signup`, `share`, `like`, `save`, `delete`, `edit`, `upload`, `download`, `search`, `code`, `build`, `deploy`, `launch`, `test`, `approve`, `reject`, `celebrate`
-
-### Subjects  
-`user`, `team`, `payment`, `message`, `notification`, `file`, `database`, `api`, `success`, `error`, `warning`, `chart`, `security`, `code`, `developer`
-
-### Themes (Storyset)
-`business`, `technology`, `finance`, `education`, `health`, `startup`, `ecommerce`, `security`, `analytics`, `social`
-
-## Remotion Integration
+## Iconoodle Packs (19 available)
 
 ```typescript
-import { Composition } from 'remotion';
-import { query, prefetchGraphics } from 'graphics-api-remotion';
+// List all packs
+console.log(iconoodle.packs);
 
-<Composition
-  calculateMetadata={async ({ props }) => {
-    const graphics = await query(props.storyline);
-    const prefetched = await prefetchGraphics(graphics);
-    return { props: { ...props, graphics: prefetched } };
-  }}
-/>
+// Popular packs
+'doodles'                          // Main (2000+ items)
+'doodles-cute-animals'             // Animals
+'doodles-fast-food-doodle-art'     // Food  
+'doodles-ai-icon-doodles'          // AI/Robot
+'doodles-internet-network-doodles' // Tech/Network
+'doodles-educational-doodles'      // Education
+'christmas-illustration'           // Holiday
+'brutalist-doodles'                // Bold/Minimal
 ```
+
+## Context Keywords
+
+**Actions:** send, receive, pay, buy, login, logout, signup, share, save, delete, code, build, deploy, launch, celebrate
+
+**Subjects:** user, team, payment, message, file, database, api, success, error, chart, security
+
+**Themes:** business, technology, finance, education, health, startup, ecommerce
 
 ## Links
 
