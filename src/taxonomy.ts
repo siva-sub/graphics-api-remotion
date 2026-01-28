@@ -71,11 +71,6 @@ export const SOURCE_CAPABILITIES = {
         styles: ['flat', 'colorful'],
         categories: ['business', 'technology', 'people', 'education', 'health']
     },
-    'ira-design': {
-        types: ['illustration', 'character'],
-        styles: ['flat', 'colorful'],
-        categories: ['business', 'people', 'technology']
-    },
     'phosphor': {
         types: ['icon'],
         styles: ['outlined', 'flat'],
@@ -87,8 +82,8 @@ export const SOURCE_CAPABILITIES = {
         categories: ['*']
     },
     'iconoodle': {
-        types: ['icon', 'doodle'],
-        styles: ['hand-drawn'],
+        types: ['icon', 'doodle', 'illustration'],  // Iconoodle has all three
+        styles: ['hand-drawn', '3d', 'colorful'],    // Multiple styles available
         categories: ['*']
     }
 } as const;

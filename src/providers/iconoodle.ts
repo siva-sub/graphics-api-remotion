@@ -1,239 +1,223 @@
 // Iconoodle Provider
-// Fetches from lib/doodles.json with embedded SVGs - no auth required
+// Hand-drawn SVG doodles, illustrations, and icon packs from GitHub
+// https://github.com/NK2552003/Iconoodle
 
 import { IconoodleOptions, GraphicResult } from '../types';
 
-const DOODLES_JSON_URL = 'https://raw.githubusercontent.com/NK2552003/Iconoodle/main/lib/doodles.json';
+const BASE_URL = 'https://raw.githubusercontent.com/NK2552003/Iconoodle/main/lib';
 
-// Doodle entry structure from doodles.json
-interface DoodleEntry {
+// Available packs (JSON files in /lib)
+export const PACKS = [
+    'doodles',                          // Main doodles (2004 items)
+    '3d-like-shape-doodles',
+    'brutalist-doodles',
+    'candy-icons',
+    'cars-icons',
+    'christmas-illustration',
+    'doodles-3',
+    'doodles-ai-icon-doodles',
+    'doodles-animal-doodles',
+    'doodles-animals-doodle',
+    'doodles-crispy-doodles',
+    'doodles-cute-animals',
+    'doodles-educational-doodles',
+    'doodles-fast-food-doodle-art',
+    'doodles-fruits-vegetables-doodle',
+    'doodles-hand-drawn-doodle',
+    'doodles-hand-drawn-doodles-scribbles',
+    'doodles-hand-drawn-lifestyle-doodle',
+    'doodles-internet-network-doodles'
+] as const;
+
+export type IconoodlePack = typeof PACKS[number];
+
+interface IconoodleItem {
     id: string;
     category: string;
-    style: 'LINED' | 'FILLED' | string;
+    style: string;
     src: string;
     svg: string;
     viewBox: string;
 }
 
-// Cache for doodles data
-let doodlesCache: DoodleEntry[] | null = null;
+// Cache for loaded packs
+const packCache: Map<string, IconoodleItem[]> = new Map();
 
 /**
- * Fetch and cache the doodles.json
+ * Load a pack's JSON data (with caching)
  */
-export async function fetchDoodles(): Promise<DoodleEntry[]> {
-    if (doodlesCache) return doodlesCache;
+export async function loadPack(pack: IconoodlePack = 'doodles'): Promise<IconoodleItem[]> {
+    const cached = packCache.get(pack);
+    if (cached) return cached;
 
     try {
-        const response = await globalThis.fetch(DOODLES_JSON_URL);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch doodles: ${response.status}`);
-        }
-        doodlesCache = await response.json();
-        return doodlesCache!;
-    } catch (error) {
-        console.error('Error fetching Iconoodle doodles:', error);
+        const url = `${BASE_URL}/${pack}.json`;
+        const response = await globalThis.fetch(url);
+        if (!response.ok) return [];
+
+        const items: IconoodleItem[] = await response.json();
+        packCache.set(pack, items);
+        return items;
+    } catch {
         return [];
     }
 }
 
 /**
- * Get all unique categories
+ * Get all available categories from a pack
  */
-export async function getCategories(): Promise<string[]> {
-    const doodles = await fetchDoodles();
-    const categories = new Set(doodles.map(d => d.category));
+export async function getCategories(pack: IconoodlePack = 'doodles'): Promise<string[]> {
+    const items = await loadPack(pack);
+    const categories = new Set(items.map(item => item.category));
     return Array.from(categories);
 }
 
 /**
- * Get all unique styles
+ * Get all available styles from a pack
  */
-export async function getStyles(): Promise<string[]> {
-    const doodles = await fetchDoodles();
-    const styles = new Set(doodles.map(d => d.style));
+export async function getStyles(pack: IconoodlePack = 'doodles'): Promise<string[]> {
+    const items = await loadPack(pack);
+    const styles = new Set(items.map(item => item.style));
     return Array.from(styles);
 }
 
 /**
- * Get doodle by ID
+ * Search for doodles by terms
  */
-export async function getById(id: string): Promise<GraphicResult | null> {
-    const doodles = await fetchDoodles();
-    const doodle = doodles.find(d => d.id === id);
+export async function search(
+    terms: string[],
+    options: { pack?: IconoodlePack; limit?: number } = {}
+): Promise<GraphicResult[]> {
+    const { pack = 'doodles', limit = 10 } = options;
+    const items = await loadPack(pack);
 
-    if (!doodle) return null;
+    const searchTerms = terms.map(t => t.toLowerCase());
 
-    return {
-        url: `https://nk2552003.github.io/Iconoodle${doodle.src}`,
-        svg: doodle.svg,
-        source: 'iconoodle',
-        metadata: {
-            id: doodle.id,
-            category: doodle.category,
-            style: doodle.style,
-            viewBox: doodle.viewBox
-        }
-    };
-}
-
-/**
- * Get doodles by category
- */
-export async function getByCategory(category: string): Promise<GraphicResult[]> {
-    const doodles = await fetchDoodles();
-    return doodles
-        .filter(d => d.category === category)
-        .map(d => ({
-            url: `https://nk2552003.github.io/Iconoodle${d.src}`,
-            svg: d.svg,
-            source: 'iconoodle' as const,
-            metadata: {
-                id: d.id,
-                category: d.category,
-                style: d.style,
-                viewBox: d.viewBox
-            }
-        }));
-}
-
-/**
- * Get doodles by style
- */
-export async function getByStyle(style: string): Promise<GraphicResult[]> {
-    const doodles = await fetchDoodles();
-    return doodles
-        .filter(d => d.style === style)
-        .map(d => ({
-            url: `https://nk2552003.github.io/Iconoodle${d.src}`,
-            svg: d.svg,
-            source: 'iconoodle' as const,
-            metadata: {
-                id: d.id,
-                category: d.category,
-                style: d.style,
-                viewBox: d.viewBox
-            }
-        }));
-}
-
-/**
- * Get a random doodle
- */
-export async function getRandom(): Promise<GraphicResult | null> {
-    const doodles = await fetchDoodles();
-    if (doodles.length === 0) return null;
-
-    const doodle = doodles[Math.floor(Math.random() * doodles.length)];
-    return {
-        url: `https://nk2552003.github.io/Iconoodle${doodle.src}`,
-        svg: doodle.svg,
-        source: 'iconoodle',
-        metadata: {
-            id: doodle.id,
-            category: doodle.category,
-            style: doodle.style,
-            viewBox: doodle.viewBox
-        }
-    };
-}
-
-/**
- * Get doodle with color modification
- */
-export async function get(options: IconoodleOptions): Promise<GraphicResult | null> {
-    const { name, color } = options;
-
-    const doodles = await fetchDoodles();
-    const doodle = doodles.find(d =>
-        d.id.toLowerCase().includes(name.toLowerCase()) ||
-        d.category.toLowerCase().includes(name.toLowerCase())
-    );
-
-    if (!doodle) return null;
-
-    let svg = doodle.svg;
-
-    // Apply color if specified
-    if (color) {
-        // Replace fill colors (common patterns in Iconoodle SVGs)
-        svg = svg.replace(/fill:\s*#[0-9a-fA-F]{6}/g, `fill: ${color}`);
-        svg = svg.replace(/fill="#[0-9a-fA-F]{6}"/g, `fill="${color}"`);
-        svg = svg.replace(/stroke:\s*#[0-9a-fA-F]{6}/g, `stroke: ${color}`);
-        svg = svg.replace(/stroke="#[0-9a-fA-F]{6}"/g, `stroke="${color}"`);
-    }
-
-    return {
-        url: `https://nk2552003.github.io/Iconoodle${doodle.src}`,
-        svg,
-        source: 'iconoodle',
-        metadata: {
-            id: doodle.id,
-            category: doodle.category,
-            style: doodle.style,
-            viewBox: doodle.viewBox
-        }
-    };
-}
-
-/**
- * Search Iconoodle doodles
- */
-export async function search(terms: string[]): Promise<GraphicResult[]> {
-    const doodles = await fetchDoodles();
-
-    // Search by ID, category, or style
-    const matches = doodles.filter(d =>
-        terms.some(term =>
-            d.id.toLowerCase().includes(term.toLowerCase()) ||
-            d.category.toLowerCase().includes(term.toLowerCase()) ||
-            d.style.toLowerCase().includes(term.toLowerCase())
+    const matches = items.filter(item =>
+        searchTerms.some(term =>
+            item.id.toLowerCase().includes(term) ||
+            item.category.toLowerCase().includes(term) ||
+            item.style.toLowerCase().includes(term)
         )
-    );
+    ).slice(0, limit);
 
-    // If no matches, return random doodles
-    const results = matches.length > 0
-        ? matches.slice(0, 5)
-        : doodles.slice(0, 5);
-
-    return results.map(d => ({
-        url: `https://nk2552003.github.io/Iconoodle${d.src}`,
-        svg: d.svg,
+    return matches.map(item => ({
+        url: `https://iconoodle.vercel.app${item.src}`,
+        svg: item.svg,
         source: 'iconoodle' as const,
+        width: parseInt(item.viewBox.split(' ')[2]) || 100,
+        height: parseInt(item.viewBox.split(' ')[3]) || 100,
         metadata: {
-            id: d.id,
-            category: d.category,
-            style: d.style,
-            viewBox: d.viewBox
+            id: item.id,
+            category: item.category,
+            style: item.style,
+            pack
         }
     }));
 }
 
 /**
- * Get total count of doodles
+ * Get doodles by category
  */
-export async function count(): Promise<number> {
-    const doodles = await fetchDoodles();
-    return doodles.length;
+export async function getByCategory(
+    category: string,
+    options: { pack?: IconoodlePack; limit?: number } = {}
+): Promise<GraphicResult[]> {
+    const { pack = 'doodles', limit = 20 } = options;
+    const items = await loadPack(pack);
+
+    const matches = items
+        .filter(item => item.category.toLowerCase().includes(category.toLowerCase()))
+        .slice(0, limit);
+
+    return matches.map(item => ({
+        url: `https://iconoodle.vercel.app${item.src}`,
+        svg: item.svg,
+        source: 'iconoodle' as const,
+        width: parseInt(item.viewBox.split(' ')[2]) || 100,
+        height: parseInt(item.viewBox.split(' ')[3]) || 100,
+        metadata: {
+            id: item.id,
+            category: item.category,
+            style: item.style,
+            pack
+        }
+    }));
 }
 
 /**
- * Clear the cache (useful for testing or refreshing)
+ * Get a specific doodle by ID
  */
-export function clearCache(): void {
-    doodlesCache = null;
+export async function get(options: IconoodleOptions): Promise<GraphicResult | null> {
+    const { name, pack = 'doodles', color } = options;
+    const items = await loadPack(pack as IconoodlePack);
+
+    const item = items.find(i =>
+        i.id.toLowerCase() === name.toLowerCase() ||
+        i.id.toLowerCase().includes(name.toLowerCase())
+    );
+
+    if (!item) return null;
+
+    let svg = item.svg;
+
+    // Apply color if specified
+    if (color) {
+        svg = svg.replace(/#000000/g, color);
+        svg = svg.replace(/fill:\s*#000000/g, `fill: ${color}`);
+    }
+
+    return {
+        url: `https://iconoodle.vercel.app${item.src}`,
+        svg,
+        source: 'iconoodle',
+        width: parseInt(item.viewBox.split(' ')[2]) || 100,
+        height: parseInt(item.viewBox.split(' ')[3]) || 100,
+        metadata: {
+            id: item.id,
+            category: item.category,
+            style: item.style,
+            pack
+        }
+    };
+}
+
+/**
+ * Get random doodles from a pack
+ */
+export async function getRandom(
+    options: { pack?: IconoodlePack; count?: number } = {}
+): Promise<GraphicResult[]> {
+    const { pack = 'doodles', count = 5 } = options;
+    const items = await loadPack(pack);
+
+    // Fisher-Yates shuffle for random selection
+    const shuffled = [...items].sort(() => Math.random() - 0.5);
+    const selected = shuffled.slice(0, count);
+
+    return selected.map(item => ({
+        url: `https://iconoodle.vercel.app${item.src}`,
+        svg: item.svg,
+        source: 'iconoodle' as const,
+        width: parseInt(item.viewBox.split(' ')[2]) || 100,
+        height: parseInt(item.viewBox.split(' ')[3]) || 100,
+        metadata: {
+            id: item.id,
+            category: item.category,
+            style: item.style,
+            pack
+        }
+    }));
 }
 
 export const iconoodle = {
-    fetchDoodles,
+    loadPack,
     getCategories,
     getStyles,
-    getById,
-    getByCategory,
-    getByStyle,
-    getRandom,
-    get,
     search,
-    count,
-    clearCache
+    getByCategory,
+    get,
+    getRandom,
+    packs: PACKS,
+    clearCache: () => packCache.clear()
 };

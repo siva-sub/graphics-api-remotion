@@ -17,10 +17,9 @@ export {
 // Query Engine
 export { queryGraphics, parseQuery, type QueryOptions, type ParsedQuery } from './query';
 
-// Providers
+// Providers (5 sources - all working with no auth)
 export { doodleIpsum } from './providers/doodle-ipsum';
 export { storyset } from './providers/storyset';
-export { iraDesign } from './providers/ira-design';
 export { phosphor } from './providers/phosphor';
 export { lucide } from './providers/lucide';
 export { iconoodle } from './providers/iconoodle';
@@ -29,10 +28,20 @@ export { iconoodle } from './providers/iconoodle';
 export type { GraphicSequenceProps } from './components/GraphicSequence';
 export type { AnimatedIconProps } from './components/AnimatedIcon';
 
+// Remotion Prefetch Utilities (for server-side rendering)
+export {
+    prefetchGraphics,
+    prefetchGraphic,
+    svgToDataUri,
+    svgToBase64DataUri,
+    getPrefetchedUrl,
+    renderSvgContent,
+    remotionUtils
+} from './remotion/prefetch';
+
 // Convenience imports
 import { doodleIpsum } from './providers/doodle-ipsum';
 import { storyset } from './providers/storyset';
-import { iraDesign } from './providers/ira-design';
 import { phosphor } from './providers/phosphor';
 import { lucide } from './providers/lucide';
 import { iconoodle } from './providers/iconoodle';
@@ -48,7 +57,6 @@ import { getIconsForContext, getThemesForContext } from './context';
 export const providers = {
     'doodle-ipsum': doodleIpsum,
     'storyset': storyset,
-    'ira-design': iraDesign,
     'phosphor': phosphor,
     'lucide': lucide,
     'iconoodle': iconoodle
@@ -83,7 +91,6 @@ export async function query(input: string | QueryOptions): Promise<GraphicResult
     const providerMap: Record<SourceName, { search: (terms: string[]) => Promise<GraphicResult[]> }> = {
         'doodle-ipsum': { search: doodleIpsum.search },
         'storyset': { search: storyset.search },
-        'ira-design': { search: iraDesign.search },
         'phosphor': { search: phosphor.search },
         'lucide': { search: lucide.search },
         'iconoodle': { search: iconoodle.search }
@@ -157,7 +164,6 @@ export const graphicsAPI = {
     providers,
     doodleIpsum,
     storyset,
-    iraDesign,
     phosphor,
     lucide,
     iconoodle

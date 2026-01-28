@@ -1,9 +1,9 @@
 // Phosphor Icons Provider
-// GitHub/unpkg CDN access - no auth required
+// GitHub raw access - no auth required
 
 import { PhosphorOptions, PhosphorWeight, GraphicResult } from '../types';
 
-const UNPKG_URL = 'https://unpkg.com/@phosphor-icons/core@2/assets';
+// Use GitHub raw which works reliably
 const GITHUB_RAW = 'https://raw.githubusercontent.com/phosphor-icons/core/main/assets';
 
 const WEIGHTS: PhosphorWeight[] = ['thin', 'light', 'regular', 'bold', 'fill', 'duotone'];
@@ -19,21 +19,36 @@ const COMMON_ICONS = [
     'play', 'pause', 'stop', 'skip-forward',
     'sun', 'moon', 'cloud', 'lightning',
     'code', 'terminal', 'database', 'globe',
-    'chat', 'phone', 'camera', 'image'
+    'chat', 'phone', 'camera', 'image',
+    'credit-card', 'wallet', 'bank', 'currency-dollar',
+    'lock', 'key', 'shield', 'warning',
+    'check-circle', 'x-circle', 'info', 'question',
+    'trophy', 'medal', 'crown', 'flag',
+    'briefcase', 'calendar', 'clock', 'hourglass',
+    'file', 'folder', 'archive', 'clipboard',
+    'link', 'at', 'hash', 'percent',
+    'chart-line', 'chart-bar', 'chart-pie', 'trend-up',
+    'rocket', 'lightning', 'fire', 'sparkle',
+    'shopping-cart', 'bag', 'package', 'gift',
+    'log-in', 'log-out', 'sign-in', 'sign-out'
 ];
 
 /**
- * Get icon URL from unpkg CDN
+ * Get icon filename - Phosphor uses name-weight.svg format for non-regular weights
  */
-export function getUrl(name: string, weight: PhosphorWeight = 'regular'): string {
-    return `${UNPKG_URL}/${weight}/${name}.svg`;
+function getFilename(name: string, weight: PhosphorWeight): string {
+    if (weight === 'regular') {
+        return `${name}.svg`;
+    }
+    return `${name}-${weight}.svg`;
 }
 
 /**
- * Get icon URL from GitHub (alternative)
+ * Get icon URL from GitHub raw
  */
-export function getGitHubUrl(name: string, weight: PhosphorWeight = 'regular'): string {
-    return `${GITHUB_RAW}/${weight}/${name}.svg`;
+export function getUrl(name: string, weight: PhosphorWeight = 'regular'): string {
+    const filename = getFilename(name, weight);
+    return `${GITHUB_RAW}/${weight}/${filename}`;
 }
 
 /**
@@ -93,7 +108,7 @@ export async function get(options: PhosphorOptions): Promise<GraphicResult> {
 export async function getDataUri(name: string, weight: PhosphorWeight = 'regular'): Promise<string | null> {
     const svg = await fetchSvg(name, weight);
     if (!svg) return null;
-    return `data:image/svg+xml;base64,${btoa(svg)}`;
+    return `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
 }
 
 /**
@@ -102,7 +117,7 @@ export async function getDataUri(name: string, weight: PhosphorWeight = 'regular
 export async function search(terms: string[]): Promise<GraphicResult[]> {
     // Find icons that match search terms
     const matches = COMMON_ICONS.filter(icon =>
-        terms.some(term => icon.includes(term) || term.includes(icon.replace('-', '')))
+        terms.some(term => icon.includes(term) || term.includes(icon.replace(/-/g, '')))
     );
 
     // If no matches, return some common icons
@@ -119,7 +134,6 @@ export async function search(terms: string[]): Promise<GraphicResult[]> {
 
 export const phosphor = {
     getUrl,
-    getGitHubUrl,
     fetchSvg,
     get,
     getDataUri,

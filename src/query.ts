@@ -87,7 +87,6 @@ function rankSources(attrs: {
     const scores: Record<SourceName, number> = {
         'doodle-ipsum': 0,
         'storyset': 0,
-        'ira-design': 0,
         'phosphor': 0,
         'lucide': 0,
         'iconoodle': 0
