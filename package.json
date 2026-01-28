@@ -1,6 +1,6 @@
 {
     "name": "graphics-api-remotion",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Context-aware graphics API for Remotion - fetch illustrations, icons, and doodles from 6 free sources. No API keys required.",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -25,10 +25,24 @@
         "icons",
         "doodles",
         "phosphor",
+        "phosphor-icons",
         "lucide",
+        "lucide-icons",
         "storyset",
+        "iconoodle",
+        "doodle-ipsum",
+        "ira-design",
         "ai-agent",
-        "context-aware"
+        "context-aware",
+        "semantic-search",
+        "video",
+        "animation",
+        "svg",
+        "no-auth",
+        "free-api",
+        "claude-code",
+        "remotion-video",
+        "programmatic-video"
     ],
     "license": "MIT",
     "devDependencies": {
